@@ -11,12 +11,12 @@ public class Passenger : MonoBehaviour
         _tooCloseMessage.SetActive(false);
     }
 
-    public void ActivateWarning()
+    public void ActivateWarning(Component sender, object obj)
     {
         _tooCloseMessage.SetActive(true);
     }
 
-    public void DisableWarning()
+    public void DisableWarning(Component sender, object obj)
     {
         _tooCloseMessage.SetActive(false);
     }

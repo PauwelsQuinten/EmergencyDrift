@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -20,15 +21,15 @@ public class HospitalManager : MonoBehaviour
     {
         _incomeText.enabled = false;
         _ambulanceCounter = _maxAmbulances.value;
-        UpdateMoney();
+        UpdateMoney(this, EventArgs.Empty);
     }
-    public void MoneyGained()
+    public void MoneyGained(Component sender, object obj)
     {
         if (_ambulanceCounter == 0) return;
         _peopleSaw = false;
         int income = RandomMoney(150, 360);
         _money.variable.value += income;
-        UpdateMoney();
+        UpdateMoney(this, EventArgs.Empty);
 
         _incomeText.text = $"+ ${income}";
         _incomeText.color = Color.green;
@@ -40,13 +41,13 @@ public class HospitalManager : MonoBehaviour
         StartCoroutine(AmbulanceTimer(_ambulanceCooldown));
     }
 
-    public void MoneyLost()
+    public void MoneyLost(Component sender, object obj)
     {
         if (_peopleSaw) return;
         _peopleSaw = true;
         int income = RandomMoney(-580, -270);
         _money.variable.value += income;
-        UpdateMoney();
+        UpdateMoney(this, EventArgs.Empty);
 
         _incomeText.text = $"- ${Mathf.Abs(income)}";
         _incomeText.color = Color.red;
@@ -56,7 +57,7 @@ public class HospitalManager : MonoBehaviour
 
     private int RandomMoney(int min, int max)
     {
-        return (int)Random.Range(min, max + 1);
+        return (int)UnityEngine.Random.Range(min, max + 1);
     }
 
     private IEnumerator IncomeTimer(float timer)
@@ -73,14 +74,14 @@ public class HospitalManager : MonoBehaviour
         _ambulanceCounterText.text = $"{_ambulanceCounter} / {_maxAmbulances.value}";
     }
 
-    public void BoughtAmbulance()
+    public void BoughtAmbulance(Component sender, object obj)
     {
         _ambulanceCounter += 1;
         _maxAmbulances.variable.value += 1;
         _ambulanceCounterText.text = $"{_ambulanceCounter} / {_maxAmbulances.value}";
     }
 
-    public void UpdateMoney()
+    public void UpdateMoney(Component sender, object obj)
     {
         _moneyText.text = $"${_money.value}";
         if (_money.value <= 0) _lostAllMoney.Raise();

@@ -8,55 +8,50 @@ public class AmbulanceController : MonoBehaviour
     [SerializeField] private GameObject _model;
 
     [Header("Moving")]
+    [SerializeField] private FloatReference _gasInput;
+    [SerializeField] private FloatReference _breakInput;
     [SerializeField] private FloatReference _moveSpeed;
     [SerializeField] private FloatReference _maxSpeed;
     [SerializeField] private float _drag = 0.98f;
     [SerializeField] private AudioSource _enginesound;
 
     [Header("Steering")]
+    [SerializeField] private FloatReference _steeringInput;
     [SerializeField] private float _steerAngle = 30f;
     [SerializeField] private float _traction = 2f;
     [SerializeField] private float _driftSpeed = 2f;
     [SerializeField] private AudioSource _driftSound;
 
     [Header("Collision")]
-    [SerializeField] private float _bouncyness = 5f;
+    [SerializeField] private float _bounciness = 5f;
     [SerializeField] private float _collisionMultiplier = 10f;
     [SerializeField] private AudioSource _hitSound;
 
     [Header("Health")]
     [SerializeField] private FloatReference _health;
-    [SerializeField] private GameObject _HealthbarObject;
+    [SerializeField] private GameObject _HealthBarObject;
     [SerializeField] private GameEvent _died;
 
     private Vector3 _moveForce;
     private Slider _healthBar;
-    private Gamepad _gamepad;
     private Rigidbody _rb;
 
     private void Start()
     {
-        _healthBar = _HealthbarObject.GetComponent<Slider>();
+        _healthBar = _HealthBarObject.GetComponent<Slider>();
         _healthBar.value = _health.value;
         _enginesound.pitch = 0.5f;
-        _gamepad = Gamepad.current;
         _rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
     {
-        if (_gamepad == null)
-        {
-            _gamepad = Gamepad.current;
-            return;
-        }
         GasInput();
         DragAndTraction();
     }
 
     private void FixedUpdate()
     {
-        if (_gamepad == null) return;
         Steering();
         _rb.Move(transform.position + _moveForce * Time.deltaTime, transform.rotation);
     }
@@ -73,7 +68,7 @@ public class AmbulanceController : MonoBehaviour
         // push player away from collision
         Vector3 direction = transform.position - collision.transform.position;
         direction.y = 0;
-        _rb.AddForce(direction * _bouncyness, ForceMode.Impulse);
+        _rb.AddForce(direction * _bounciness, ForceMode.Impulse);
 
 
         //Debug.Log(damage);
@@ -98,27 +93,27 @@ public class AmbulanceController : MonoBehaviour
 
     private void GasInput()
     {
-        _moveForce += transform.forward * _moveSpeed.value * (_gamepad.rightTrigger.ReadValue() - _gamepad.leftTrigger.ReadValue()) * Time.deltaTime;
+        _moveForce += transform.forward * _moveSpeed.value * (_gasInput.value - _breakInput.value) * Time.deltaTime;
 
         _moveForce = Vector3.ClampMagnitude(_moveForce, _maxSpeed.value);
 
         float enginePitch;
-        if (_gamepad.rightTrigger.ReadValue() == 0 && _gamepad.leftTrigger.ReadValue() == 0) enginePitch = 0.5f;
-        else enginePitch = 0.5f + (_gamepad.rightTrigger.ReadValue() / 2) + (_gamepad.leftTrigger.ReadValue() / 2);
+        if (_gasInput.value == 0 && _breakInput.value == 0) enginePitch = 0.5f;
+        else enginePitch = 0.5f + (_gasInput.value / 2) + (_breakInput.value / 2);
         enginePitch = Mathf.Clamp(enginePitch, 0.5f, 1f);
         _enginesound.pitch = enginePitch;
     }
 
     private void Steering()
     {
-        float steerInput = _gamepad.leftStick.ReadValue().x;
-        if(_gamepad.leftTrigger.ReadValue() != 0) transform.Rotate(Vector3.up * -steerInput * _moveForce.magnitude * _steerAngle * Time.deltaTime);
+        float steerInput = _steeringInput.value;
+        if(_breakInput.value != 0) transform.Rotate(Vector3.up * -steerInput * _moveForce.magnitude * _steerAngle * Time.deltaTime);
         else transform.Rotate(Vector3.up * steerInput * _moveForce.magnitude * _steerAngle * Time.deltaTime);
 
         // Drifting
-        if (steerInput != 0 && _gamepad.rightTrigger.ReadValue() != 0)
+        if (steerInput != 0 && _gasInput.value != 0)
         {
-            float driftAngle = Mathf.Clamp(steerInput * 45, -45, 45) * Mathf.Clamp01(_gamepad.rightTrigger.ReadValue());
+            float driftAngle = Mathf.Clamp(steerInput * 45, -45, 45) * Mathf.Clamp01(_gasInput.value);
             Quaternion targetRotation = Quaternion.Euler(0, driftAngle, 0);
 
             _model.transform.localRotation = Quaternion.Slerp(_model.transform.localRotation, targetRotation, Time.deltaTime * _driftSpeed);
@@ -130,7 +125,7 @@ public class AmbulanceController : MonoBehaviour
             _model.transform.localRotation = Quaternion.Slerp(_model.transform.localRotation, straightRotation, Time.deltaTime * _driftSpeed);
         }
 
-        if (steerInput >= 0.25f && _gamepad.rightTrigger.ReadValue() != 0 || steerInput <= -0.25f && _gamepad.rightTrigger.ReadValue() != 0)
+        if (steerInput >= 0.25f && _gasInput.value != 0 || steerInput <= -0.25f && _gasInput.value != 0)
         {
             if (!_driftSound.isPlaying) _driftSound.Play();
         }

@@ -23,4 +23,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameWon.unity
     guid: dccd6c814780b5845b23f305ff54fbee
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: e2668238327d6c043a528ee781cf664a, type: 3}
+  m_UseUCBPForAssetBundles: 0

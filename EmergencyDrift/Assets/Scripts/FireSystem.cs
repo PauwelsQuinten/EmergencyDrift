@@ -32,7 +32,7 @@ public class FireSystem : MonoBehaviour
         _heatBarSlider.value = _currentHeat;
     }
 
-    public void HitPerson()
+    public void HitPerson(Component sender, object obj)
     {
         _timeBetweenHits = Mathf.Clamp01(_timeBetweenHits);
         _currentHeat += _heatFactor * _timeBetweenHits;
@@ -44,7 +44,7 @@ public class FireSystem : MonoBehaviour
         if(_currentHeat >= 100) _yourFired.Raise();
     }
 
-    public void PeopleSpottedYou()
+    public void PeopleSpottedYou(Component sender, object obj)
     {
         _currentHeat += _heatFactor * 2;
         _timeBetweenHits = 0;
