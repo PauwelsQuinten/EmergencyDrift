@@ -1,6 +1,8 @@
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
+using System.Collections.Generic;
 
 public class AmbulanceController : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class AmbulanceController : MonoBehaviour
     [SerializeField] private float _traction = 2f;
     [SerializeField] private float _driftSpeed = 2f;
     [SerializeField] private AudioSource _driftSound;
+    [SerializeField] private List<VisualEffect> _tireSmoke = new List<VisualEffect>();
+    [SerializeField] private List<TrailRenderer> _tireMarks = new List<TrailRenderer>();
 
     [Header("Collision")]
     [SerializeField] private float _bounciness = 5f;
@@ -125,14 +129,7 @@ public class AmbulanceController : MonoBehaviour
             _model.transform.localRotation = Quaternion.Slerp(_model.transform.localRotation, straightRotation, Time.deltaTime * _driftSpeed);
         }
 
-        if (steerInput >= 0.25f && _gasInput.value != 0 || steerInput <= -0.25f && _gasInput.value != 0)
-        {
-            if (!_driftSound.isPlaying) _driftSound.Play();
-        }
-        else
-        {
-            if (_driftSound.isPlaying) _driftSound.Stop();
-        }
+        HandleDriftEffects(steerInput);
     }
 
     private void DragAndTraction()
@@ -144,5 +141,33 @@ public class AmbulanceController : MonoBehaviour
         Debug.DrawRay(transform.position, _moveForce.normalized * 3);
         Debug.DrawRay(transform.position, transform.forward * 3, Color.blue);
         _moveForce = Vector3.Lerp(_moveForce.normalized, transform.forward, _traction * Time.deltaTime) * _moveForce.magnitude;
+    }
+
+    private void HandleDriftEffects(float steerInput)
+    {
+        if (steerInput >= 0.35f && _gasInput.value != 0 || steerInput <= -0.35f && _gasInput.value != 0)
+        {
+            foreach(VisualEffect smoke in _tireSmoke)
+            {
+                smoke.Play();
+            }
+            foreach(TrailRenderer skidMark in _tireMarks)
+            {
+                skidMark.emitting = true;
+            }
+            if (!_driftSound.isPlaying) _driftSound.Play();
+        }
+        else
+        {
+            foreach (VisualEffect smoke in _tireSmoke)
+            {
+                smoke.Stop();
+            }
+            foreach (TrailRenderer skidMark in _tireMarks)
+            {
+                skidMark.emitting = false;
+            }
+            if (_driftSound.isPlaying) _driftSound.Stop();
+        }
     }
 }
