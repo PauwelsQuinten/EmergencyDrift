@@ -1,6 +1,8 @@
 using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
+using System.Collections.Generic;
 
 public class AmbulanceController : MonoBehaviour
 {
@@ -21,6 +23,8 @@ public class AmbulanceController : MonoBehaviour
     [SerializeField] private float _traction = 2f;
     [SerializeField] private float _driftSpeed = 2f;
     [SerializeField] private AudioSource _driftSound;
+    [SerializeField] private List<VisualEffect> _tireSmoke = new List<VisualEffect>();
+    [SerializeField] private List<TrailRenderer> _tireMarks = new List<TrailRenderer>();
 
     [Header("Collision")]
     [SerializeField] private float _bounciness = 5f;
@@ -35,6 +39,8 @@ public class AmbulanceController : MonoBehaviour
     private Vector3 _moveForce;
     private Slider _healthBar;
     private Rigidbody _rb;
+
+    private bool _canDrift;
 
     private void Start()
     {
@@ -93,7 +99,7 @@ public class AmbulanceController : MonoBehaviour
 
     private void GasInput()
     {
-        _moveForce += transform.forward * _moveSpeed.value * (_gasInput.value - _breakInput.value) * Time.deltaTime;
+        _moveForce += transform.forward * (_moveSpeed.value * (_gasInput.value - _breakInput.value)) * Time.deltaTime;
 
         _moveForce = Vector3.ClampMagnitude(_moveForce, _maxSpeed.value);
 
@@ -111,7 +117,7 @@ public class AmbulanceController : MonoBehaviour
         else transform.Rotate(Vector3.up * steerInput * _moveForce.magnitude * _steerAngle * Time.deltaTime);
 
         // Drifting
-        if (steerInput != 0 && _gasInput.value != 0)
+        if (steerInput != 0 && _gasInput.value != 0 && _canDrift)
         {
             float driftAngle = Mathf.Clamp(steerInput * 45, -45, 45) * Mathf.Clamp01(_gasInput.value);
             Quaternion targetRotation = Quaternion.Euler(0, driftAngle, 0);
@@ -125,14 +131,7 @@ public class AmbulanceController : MonoBehaviour
             _model.transform.localRotation = Quaternion.Slerp(_model.transform.localRotation, straightRotation, Time.deltaTime * _driftSpeed);
         }
 
-        if (steerInput >= 0.25f && _gasInput.value != 0 || steerInput <= -0.25f && _gasInput.value != 0)
-        {
-            if (!_driftSound.isPlaying) _driftSound.Play();
-        }
-        else
-        {
-            if (_driftSound.isPlaying) _driftSound.Stop();
-        }
+        HandleDriftEffects(steerInput);
     }
 
     private void DragAndTraction()
@@ -144,5 +143,45 @@ public class AmbulanceController : MonoBehaviour
         Debug.DrawRay(transform.position, _moveForce.normalized * 3);
         Debug.DrawRay(transform.position, transform.forward * 3, Color.blue);
         _moveForce = Vector3.Lerp(_moveForce.normalized, transform.forward, _traction * Time.deltaTime) * _moveForce.magnitude;
+    }
+
+    private void HandleDriftEffects(float steerInput)
+    {
+        if (steerInput >= 0.35f && _gasInput.value != 0 && _canDrift || steerInput <= -0.35f && _gasInput.value != 0 && _canDrift)
+        {
+            foreach(VisualEffect smoke in _tireSmoke)
+            {
+                smoke.Play();
+            }
+            foreach(TrailRenderer skidMark in _tireMarks)
+            {
+                skidMark.emitting = true;
+            }
+            if (!_driftSound.isPlaying) _driftSound.Play();
+            _moveSpeed.variable.value = 80;
+        }
+        else
+        {
+            foreach (VisualEffect smoke in _tireSmoke)
+            {
+                smoke.Stop();
+            }
+            foreach (TrailRenderer skidMark in _tireMarks)
+            {
+                skidMark.emitting = false;
+            }
+            if (_driftSound.isPlaying) _driftSound.Stop();
+            _moveSpeed.variable.value = 55;
+        }
+    }
+
+    public void EngageDrift(Component sender, object obj)
+    {
+        _canDrift = true;
+    }
+
+    public void DisengageDrift(Component sender, object obj)
+    {
+        _canDrift = false;
     }
 }
