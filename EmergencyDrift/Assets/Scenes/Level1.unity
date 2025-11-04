@@ -41875,6 +41875,8 @@ MonoBehaviour:
   Events:
   - {fileID: 11400000, guid: f06e547937a2aff4f8b7055cd1475a80, type: 2}
   - {fileID: 11400000, guid: f5541615c6eeab641a48bdd491ca97eb, type: 2}
+  - {fileID: 11400000, guid: a275fe0d30e463240af1dfd56fa9b970, type: 2}
+  - {fileID: 11400000, guid: 9158a6d834945a54eaf97ec2e1e0024a, type: 2}
   Responses:
   - m_PersistentCalls:
       m_Calls:
@@ -41895,6 +41897,34 @@ MonoBehaviour:
       - m_Target: {fileID: 1449082755}
         m_TargetAssemblyTypeName: Passenger, Assembly-CSharp
         m_MethodName: DisableWarning
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1449082752}
+        m_TargetAssemblyTypeName: AmbulanceController, Assembly-CSharp
+        m_MethodName: DisengageDrift
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1449082752}
+        m_TargetAssemblyTypeName: AmbulanceController, Assembly-CSharp
+        m_MethodName: EngageDrift
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -60792,9 +60822,25 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: d073c795-c11f-4eaa-9bd2-9456ce2b3cc6
     m_ActionName: 'Player/Gas[/XInputControllerWindows/rightTrigger,/Keyboard/w,/Keyboard/upArrow]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2111005175}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: DriftInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: c09b74eb-6410-4a57-8d82-292327c13c1c
+    m_ActionName: 'Player/Drift[/XInputControllerWindows/leftShoulder,/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: f17cf80f-a823-4c32-bf6f-d043d064d3f5
+  m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &2111005175
@@ -60821,6 +60867,8 @@ MonoBehaviour:
     useConstant: 0
     constantValue: 0
     variable: {fileID: 11400000, guid: 9884afff5242e7946becf234d350ce41, type: 2}
+  _driftEngaged: {fileID: 11400000, guid: 9158a6d834945a54eaf97ec2e1e0024a, type: 2}
+  _driftDesignated: {fileID: 11400000, guid: a275fe0d30e463240af1dfd56fa9b970, type: 2}
 --- !u!4 &2111005176
 Transform:
   m_ObjectHideFlags: 0

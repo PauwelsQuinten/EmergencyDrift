@@ -40,6 +40,8 @@ public class AmbulanceController : MonoBehaviour
     private Slider _healthBar;
     private Rigidbody _rb;
 
+    private bool _canDrift;
+
     private void Start()
     {
         _healthBar = _HealthBarObject.GetComponent<Slider>();
@@ -97,7 +99,7 @@ public class AmbulanceController : MonoBehaviour
 
     private void GasInput()
     {
-        _moveForce += transform.forward * _moveSpeed.value * (_gasInput.value - _breakInput.value) * Time.deltaTime;
+        _moveForce += transform.forward * (_moveSpeed.value * (_gasInput.value - _breakInput.value)) * Time.deltaTime;
 
         _moveForce = Vector3.ClampMagnitude(_moveForce, _maxSpeed.value);
 
@@ -115,7 +117,7 @@ public class AmbulanceController : MonoBehaviour
         else transform.Rotate(Vector3.up * steerInput * _moveForce.magnitude * _steerAngle * Time.deltaTime);
 
         // Drifting
-        if (steerInput != 0 && _gasInput.value != 0)
+        if (steerInput != 0 && _gasInput.value != 0 && _canDrift)
         {
             float driftAngle = Mathf.Clamp(steerInput * 45, -45, 45) * Mathf.Clamp01(_gasInput.value);
             Quaternion targetRotation = Quaternion.Euler(0, driftAngle, 0);
@@ -145,7 +147,7 @@ public class AmbulanceController : MonoBehaviour
 
     private void HandleDriftEffects(float steerInput)
     {
-        if (steerInput >= 0.35f && _gasInput.value != 0 || steerInput <= -0.35f && _gasInput.value != 0)
+        if (steerInput >= 0.35f && _gasInput.value != 0 && _canDrift || steerInput <= -0.35f && _gasInput.value != 0 && _canDrift)
         {
             foreach(VisualEffect smoke in _tireSmoke)
             {
@@ -156,6 +158,7 @@ public class AmbulanceController : MonoBehaviour
                 skidMark.emitting = true;
             }
             if (!_driftSound.isPlaying) _driftSound.Play();
+            _moveSpeed.variable.value = 80;
         }
         else
         {
@@ -168,6 +171,17 @@ public class AmbulanceController : MonoBehaviour
                 skidMark.emitting = false;
             }
             if (_driftSound.isPlaying) _driftSound.Stop();
+            _moveSpeed.variable.value = 55;
         }
+    }
+
+    public void EngageDrift(Component sender, object obj)
+    {
+        _canDrift = true;
+    }
+
+    public void DisengageDrift(Component sender, object obj)
+    {
+        _canDrift = false;
     }
 }
