@@ -5,8 +5,6 @@ using UnityEngine.AI;
 
 public class Human : MonoBehaviour
 {
-    [SerializeField] private float _moveSpeed = 2f;
-    [SerializeField] private float _rotationSpeed = 100f;
     [SerializeField] private float _WalkDistance = 3f;
     [SerializeField] private LayerMask _obstacleMask;
 

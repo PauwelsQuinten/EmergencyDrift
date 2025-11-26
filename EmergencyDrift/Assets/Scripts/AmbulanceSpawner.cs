@@ -1,16 +1,25 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AmbulanceSpawner : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField]
+    private List<GameObject> _spawnPoints = new List<GameObject>();
+    [SerializeField]
+    private GameObject _enemyPrefab;
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        SpawnAmbulances(this, EventArgs.Empty);
+    }
+    public void SpawnAmbulances(Component sender, object obj)
+    {
+        foreach (GameObject spawnPoint in _spawnPoints)
+        {
+            if (spawnPoint.GetComponentInChildren<Enemy>() != null) continue;
+            GameObject enemy = Instantiate(_enemyPrefab, Vector3.zero, Quaternion.identity);
+            enemy.transform.parent = null;
+        }
     }
 }
